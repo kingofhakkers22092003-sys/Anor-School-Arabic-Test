@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="uz">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <title>Tinglash · Anor School</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&family=Amiri:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body class="test-page" data-section="Tinglash">
+    <header class="site-header">
+      <a class="brand" href="index.html"
+        ><span class="brand-mark">✦</span
+        ><span
+          ><strong>Anor</strong><small>INTERNATIONAL SCHOOL</small></span
+        ></a
+      ><a class="back-link" href="index.html">← Bosh sahifa</a>
+    </header>
+    <main class="test-main">
+      <section class="test-intro listening-theme">
+        <p class="eyebrow">02 · الاستماع</p>
+        <h1>Tinglash testi</h1>
+        <p>Har audioni eshiting va to‘g‘ri javobni belgilang.</p>
+      </section>
+      <form class="test-form choice-test">
+        <div class="question" data-answer="B">
+          <span class="question-number">AUDIO 01</span>
+          <div class="audio-player">
+            <button
+              class="play-audio"
+              type="button"
+              data-text="مرحباً! اسمي محمد."
+            >
+              ▶</button
+            ><small>Audio 1 · kerak bo‘lsa qayta tinglashingiz mumkin.</small>
+          </div>
+          <h2>Gapirayotgan bolaning ismi nima?</h2>
+          <div class="options">
+            <label class="option"
+              ><input type="radio" name="q1" value="A" />A. Ali</label
+            ><label class="option"
+              ><input type="radio" name="q1" value="B" />B. Muhammad</label
+            ><label class="option"
+              ><input type="radio" name="q1" value="C" />C. Xolid</label
+            >
+          </div>
+        </div>
+        <div class="question" data-answer="C">
+          <span class="question-number">AUDIO 02</span>
+          <div class="audio-player">
+            <button class="play-audio" type="button" data-text="اليوم يوم الجمعة.">
+              ▶</button
+            ><small>Audio 2 · diqqat bilan eshiting.</small>
+          </div>
+          <h2>Bugun haftaning qaysi kuni?</h2>
+          <div class="options">
+            <label class="option"
+              ><input type="radio" name="q2" value="A" />A. Dushanba</label
+            ><label class="option"
+              ><input type="radio" name="q2" value="B" />B. Chorshanba</label
+            ><label class="option"
+              ><input type="radio" name="q2" value="C" />C. Juma</label
+            >
+          </div>
+        </div>
+        <div class="question" data-answer="A">
+          <span class="question-number">AUDIO 03</span>
+          <div class="audio-player">
+            <button
+              class="play-audio"
+              type="button"
+              data-text="أنا أحب الشاي ولا أحب القهوة."
+            >
+              ▶</button
+            ><small>Audio 3 · ikki ichimlik eslatiladi.</small>
+          </div>
+          <h2>U nimani yoqtiradi?</h2>
+          <div class="options">
+            <label class="option"
+              ><input type="radio" name="q3" value="A" />A. Choy</label
+            ><label class="option"
+              ><input type="radio" name="q3" value="B" />B. Qahva</label
+            ><label class="option"
+              ><input type="radio" name="q3" value="C" />C. Sut</label
+            >
+          </div>
+        </div>
+        <button
+          class="primary-button submit-test listening-theme"
+          type="submit"
+        >
+          Javoblarni tekshirish →
+        </button>
+        <div id="testResult" class="result-box"></div>
+      </form>
+    </main>
+    <footer>© Anor International School · Created by Mamadaminov</footer>
+    <script src="app.js"></script>
+  </body>
+</html>

@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="uz">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <title>Grammatika · Anor School</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&family=Amiri:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body class="test-page" data-section="Grammatika">
+    <header class="site-header">
+      <a class="brand" href="index.html"
+        ><span class="brand-mark">✦</span
+        ><span
+          ><strong>Anor</strong><small>INTERNATIONAL SCHOOL</small></span
+        ></a
+      ><a class="back-link" href="index.html">← Bosh sahifa</a>
+    </header>
+    <main class="test-main">
+      <section class="test-intro grammar-theme">
+        <p class="eyebrow">01 · القواعد</p>
+        <h1>Grammatika testi</h1>
+        <p>To‘g‘ri javobni tanlang. Har savol 1 ball.</p>
+      </section>
+      <form class="test-form choice-test">
+        <div class="question" data-answer="A">
+          <span class="question-number">SAVOL 01</span>
+          <h2>“Men o‘quvchiman” jumlasining to‘g‘ri tarjimasi qaysi?</h2>
+          <div class="options">
+            <label class="option"
+              ><input type="radio" name="q1" value="A" />A. أنا طالب.</label
+            ><label class="option"
+              ><input type="radio" name="q1" value="B" />B. طالب أنا.</label
+            ><label class="option"
+              ><input type="radio" name="q1" value="C" />C. أنا طالبٌ يكون.</label
+            >
+          </div>
+        </div>
+        <div class="question" data-answer="A">
+          <span class="question-number">SAVOL 02</span>
+          <h2>Bo‘sh joyni to‘ldiring: هذا ___ جميل. (Bu chiroyli kitob.)</h2>
+          <div class="options">
+            <label class="option"
+              ><input type="radio" name="q2" value="A" />A. كتاب</label
+            ><label class="option"
+              ><input type="radio" name="q2" value="B" />B. سيارة</label
+            ><label class="option"
+              ><input type="radio" name="q2" value="C" />C. مدرسة</label
+            >
+          </div>
+        </div>
+        <div class="question" data-answer="A">
+          <span class="question-number">SAVOL 03</span>
+          <h2>“Men maktabga boraman” jumlasini toping.</h2>
+          <div class="options">
+            <label class="option"
+              ><input type="radio" name="q3" value="A" />A. أنا أذهب إلى المدرسة.</label
+            ><label class="option"
+              ><input type="radio" name="q3" value="B" />B. المدرسة أذهب أنا.</label
+            ><label class="option"
+              ><input type="radio" name="q3" value="C" />C. أنا المدرسة أذهب.</label
+            >
+          </div>
+        </div>
+        <div class="question" data-answer="A">
+          <span class="question-number">SAVOL 04</span>
+          <h2>“هل” so‘roq yuklamasi qaysi gapda to‘g‘ri ishlatilgan?</h2>
+          <div class="options">
+            <label class="option"
+              ><input type="radio" name="q4" value="A" />A. هل أنت طالب؟</label
+            ><label class="option"
+              ><input type="radio" name="q4" value="B" />B. أنت هل طالب؟</label
+            ><label class="option"
+              ><input type="radio" name="q4" value="C" />C. أنت طالب هل؟</label
+            >
+          </div>
+        </div>
+        <button class="primary-button submit-test grammar-theme" type="submit">
+          Javoblarni tekshirish →
+        </button>
+        <div id="testResult" class="result-box"></div>
+      </form>
+    </main>
+    <footer>© Anor International School · Created by Mamadaminov</footer>
+    <script src="app.js"></script>
+  </body>
+</html>

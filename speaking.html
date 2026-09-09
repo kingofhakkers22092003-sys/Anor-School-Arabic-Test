@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="uz">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <title>Gapirish · Anor School</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&family=Amiri:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body class="test-page" data-section="Gapirish">
+    <header class="site-header">
+      <a class="brand" href="index.html"
+        ><span class="brand-mark">✦</span
+        ><span
+          ><strong>Anor</strong><small>INTERNATIONAL SCHOOL</small></span
+        ></a
+      ><a class="back-link" href="index.html">← Bosh sahifa</a>
+    </header>
+    <main class="test-main">
+      <section class="test-intro speaking-theme">
+        <p class="eyebrow">05 · المحادثة</p>
+        <h1>Gapirish testi</h1>
+        <p>
+          Ovoz yozuvingiz orqali talaffuz va og‘zaki nutqingiz tekshiriladi.
+        </p>
+      </section>
+      <form id="speakingForm" class="test-form">
+        <div class="question">
+          <span class="question-number">TOPSHIRIQ</span>
+          <h2>O‘zingizni arab tilida tanishtiring</h2>
+          <div class="writing-prompt">
+            <p class="arabic-line">
+              مرحباً! اسمي…. أنا طالب في الصف…. أحب تعلّم اللغة العربية.
+            </p>
+            <p>
+              Yuqoridagi namunadan foydalanib, ismingiz va sinfingizni ayting.
+              So‘ng arab tilini yoqtirishingiz/yoqtirmasligingiz haqida
+              gapiring.
+            </p>
+          </div>
+          <p>
+            <strong>Baholash:</strong> talaffuz va tonlar, gapning aniqligi,
+            so‘z boyligi hamda nutq ravonligi.
+          </p>
+          <div class="record-area">
+            <button
+              id="recordButton"
+              class="record-button"
+              type="button"
+              aria-label="Ovozni yozish"
+            >
+              ●
+            </button>
+            <p id="recordStatus" class="record-status">
+              Yozishni boshlash uchun mikrofon tugmasini bosing.
+            </p>
+            <audio
+              id="audioPreview"
+              class="audio-preview hidden"
+              controls
+            ></audio>
+          </div>
+        </div>
+        <button class="primary-button submit-test speaking-theme" type="submit">
+          Og‘zaki javobni yuborish →
+        </button>
+        <div id="testResult" class="result-box"></div>
+      </form>
+    </main>
+    <footer>© Anor International School · Created by Mamadaminov</footer>
+    <script src="app.js"></script>
+  </body>
+</html>

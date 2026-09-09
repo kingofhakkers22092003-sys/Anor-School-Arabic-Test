@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="uz">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <title>Yozish · Anor School</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&family=Amiri:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body class="test-page" data-section="Yozish">
+    <header class="site-header">
+      <a class="brand" href="index.html"
+        ><span class="brand-mark">✦</span
+        ><span
+          ><strong>Anor</strong><small>INTERNATIONAL SCHOOL</small></span
+        ></a
+      ><a class="back-link" href="index.html">← Bosh sahifa</a>
+    </header>
+    <main class="test-main">
+      <section class="test-intro writing-theme">
+        <p class="eyebrow">04 · الكتابة</p>
+        <h1>Yozish testi</h1>
+        <p>
+          Javoblaringizni arab tilida yozing. O‘qituvchi mazmun va grammatikani
+          baholaydi.
+        </p>
+      </section>
+      <form id="writingForm" class="test-form">
+        <div class="question">
+          <span class="question-number">TOPSHIRIQ 01</span>
+          <h2>So‘zlardan to‘g‘ri jumla tuzing</h2>
+          <div class="writing-prompt">
+            <span class="arabic-line">أنا / طالب / مجتهد</span>
+            <p>Yuqoridagi so‘zlardan arabcha gap tuzing.</p>
+          </div>
+          <label
+            >Javobingiz<textarea
+              name="answer1"
+              rows="3"
+              placeholder="Jumlangizni shu yerga yozing…"
+            ></textarea>
+          </label>
+        </div>
+        <div class="question">
+          <span class="question-number">TOPSHIRIQ 02</span>
+          <h2>O‘zingiz haqingizda yozing</h2>
+          <div class="writing-prompt">
+            <p>
+              Arab tilida ismingiz, sinfingiz va arab tilini yoqtirasizmi yoki
+              yo‘qligi haqida 2–3 ta sodda gap yozing.
+            </p>
+          </div>
+          <label
+            >Javobingiz<textarea
+              name="answer2"
+              rows="6"
+              placeholder="Masalan: اسمي…. أنا طالب في الصف…. أحب اللغة العربية."
+            ></textarea>
+          </label>
+        </div>
+        <div class="question">
+          <span class="question-number">TOPSHIRIQ 03</span>
+          <h2>Tarjima qiling</h2>
+          <div class="writing-prompt">
+            <p>“Bugun havo yaxshi.” jumlasini arab tiliga tarjima qiling.</p>
+          </div>
+          <label
+            >Javobingiz<textarea
+              name="answer3"
+              rows="3"
+              placeholder="Tarjimangiz…"
+            ></textarea>
+          </label>
+        </div>
+        <button class="primary-button submit-test writing-theme" type="submit">
+          Yozma javobni yuborish →
+        </button>
+        <div id="testResult" class="result-box"></div>
+      </form>
+    </main>
+    <footer>© Anor International School · Created by Mamadaminov</footer>
+    <script src="app.js"></script>
+  </body>
+</html>

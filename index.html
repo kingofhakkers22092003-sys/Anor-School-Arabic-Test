@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="uz">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Anor School · Arab tili diagnostikasi</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&family=Amiri:wght@400;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="fixes.css" />
+  </head>
+  <body class="home-page">
+    <div class="paper-texture"></div>
+    <header class="site-header">
+      <a class="brand" href="index.html" aria-label="Anor School bosh sahifa">
+        <span class="brand-mark">✦</span>
+        <span><strong>Anor</strong><small>INTERNATIONAL SCHOOL</small></span>
+      </a>
+      <button id="logoutButton" class="text-button hidden">Chiqish</button>
+    </header>
+
+    <main>
+      <section id="welcome" class="hero">
+        <div class="hero-copy">
+          <p class="eyebrow">تشخيص إتقان اللغة العربية · ARAB TILI DIAGNOSTIKASI</p>
+          <h1>Tilni bilish —<br /><em>yangi olamga</em> ochilgan eshik.</h1>
+          <p class="hero-text">Anor School o‘quvchilari uchun arab tili bo‘yicha qulay va zamonaviy daraja aniqlash platformasi.</p>
+          <div class="skill-pills" aria-label="Baholanadigan ko'nikmalar">
+            <span>القواعد Grammar</span><span>الاستماع Listening</span><span>القراءة Reading</span><span>الكتابة Writing</span><span>المحادثة Speaking</span>
+          </div>
+        </div>
+        <div class="hero-art" aria-hidden="true">
+          <div class="sun"></div><div class="star-motif star-motif-back"></div><div class="star-motif star-motif-front"></div>
+          <div class="seal">رمان</div><span class="floating-char char-one">علم</span><span class="floating-char char-two">حكمة</span>
+        </div>
+      </section>
+
+      <section id="authSection" class="auth-section">
+        <div class="section-heading"><p class="eyebrow">BOSHLASH</p><h2>O‘z profilingizga kiring</h2></div>
+        <div class="auth-grid">
+          <form id="loginForm" class="auth-card" novalidate>
+            <span class="card-label">KIRISH</span><h3>Xush kelibsiz</h3>
+            <p>Testni boshlash uchun akkauntingizga kiring. O‘qituvchi: <strong>admin / admin</strong>.</p>
+            <label>Ism familiya<input name="fullName" type="text" autocomplete="name" placeholder="Masalan: Ali Valiyev" required /></label>
+            <label>Parol<input name="password" type="password" autocomplete="current-password" placeholder="Parolingizni kiriting" required /></label>
+            <button class="primary-button" type="submit">Kirish <span>→</span></button>
+          </form>
+          <form id="registerForm" class="auth-card gold-card" novalidate>
+            <span class="card-label">YANGI O‘QUVCHI</span><h3>Ro‘yxatdan o‘tish</h3>
+            <p>Ma’lumotlaringiz faqat sizning profilingizda saqlanadi.</p>
+            <label>Ism familiya<input name="fullName" type="text" autocomplete="name" placeholder="Masalan: Ali Valiyev" required /></label>
+            <label>Sinf<select name="schoolClass" required><option value="" selected disabled>Sinfingizni tanlang</option></select></label>
+            <label>Parol<input name="password" type="password" autocomplete="new-password" minlength="4" placeholder="Kamida 4 ta belgi" required /></label>
+            <button class="primary-button dark-button" type="submit">Profil yaratish <span>→</span></button>
+          </form>
+        </div>
+        <p id="authMessage" class="form-message" role="status"></p>
+      </section>
+
+      <section id="dashboard" class="dashboard hidden">
+        <div class="dashboard-title"><div><p class="eyebrow">SIZNING PROFILINGIZ</p><h2><span id="studentName"></span>, xush kelibsiz!</h2><p id="studentClass"></p></div><div class="level-badge"><span class="badge-star">✦</span><span>DIAGNOSTIKA</span><strong>TEST</strong></div></div>
+        <div class="notice"><span>✦</span><p>Har bir bo‘lim yakunida natijangiz profilingizga saqlanadi. Barcha besh bo‘limni bajaring.</p></div>
+        <div class="test-grid">
+          <a class="test-card jade" href="grammar.html"><span class="test-index">01</span><span class="arabic-word">القواعد</span><h3>Grammatika</h3><p>Gap tuzilishi va so‘z boyligi</p><span class="go">Boshlash →</span></a>
+          <a class="test-card blue" href="listening.html"><span class="test-index">02</span><span class="arabic-word">الاستماع</span><h3>Tinglash</h3><p>Eshitib tushunish</p><span class="go">Boshlash →</span></a>
+          <a class="test-card coral" href="reading.html"><span class="test-index">03</span><span class="arabic-word">القراءة</span><h3>O‘qish</h3><p>Matn va so‘zlarni anglash</p><span class="go">Boshlash →</span></a>
+          <a class="test-card gold" href="writing.html"><span class="test-index">04</span><span class="arabic-word">الكتابة</span><h3>Yozish</h3><p>Gaplar va harflar</p><span class="go">Boshlash →</span></a>
+          <a class="test-card plum" href="speaking.html"><span class="test-index">05</span><span class="arabic-word">المحادثة</span><h3>Gapirish</h3><p>Talaffuz va og‘zaki nutq</p><span class="go">Boshlash →</span></a>
+        </div>
+        <section id="finalResults" class="final-results hidden" aria-live="polite">
+          <button id="resetResults" class="close-results" type="button" aria-label="Natijalarni yopish va testni qayta boshlash" title="Testni qayta boshlash">×</button>
+          <p class="eyebrow">DIAGNOSTIKA YAKUNLANDI</p>
+          <h3>Umumiy natijangiz</h3>
+          <p>Beshta bo‘lim ham bajarildi. Quyida har bir bo‘lim natijasi jamlangan.</p>
+          <div id="resultSummary" class="result-summary"></div>
+          <button id="downloadPdf" class="primary-button pdf-button" type="button">Natijani PDF sifatida yuklab olish ↓</button>
+        </section>
+      </section>
+      <section id="teacherDashboard" class="dashboard teacher-dashboard hidden">
+        <div class="dashboard-title"><div><p class="eyebrow">O‘QITUVCHI PANELI</p><h2>O‘quvchilar natijalari</h2><p>Har o‘quvchining oxirgi 5 ta yakunlangan diagnostikasi saqlanadi.</p></div><div class="level-badge"><span class="badge-star">✦</span><span>ANOR SCHOOL</span><strong>ADMIN</strong></div></div>
+        <div class="grading-mode-switch" role="group" aria-label="Baholash rejimi">
+          <span class="grading-mode-label">Baholash rejimi:</span>
+          <button type="button" data-grading-mode="ai" class="mode-button">AI tekshiruvi</button>
+          <button type="button" data-grading-mode="teacher" class="mode-button">Ustoz tekshiruvi</button>
+        </div>
+        <div class="teacher-tabs" role="tablist"><button class="teacher-tab active" data-teacher-view="questions" type="button">Test savollarini boshqarish</button><button class="teacher-tab" data-teacher-view="results" type="button">O‘quvchilar natijalari</button><button class="teacher-tab" data-teacher-view="review" type="button">Tekshirish</button><button class="teacher-tab" data-teacher-view="settings" type="button">Admin sozlamalari</button></div>
+        <section id="teacherQuestionsPanel" class="teacher-panel">
+          <div class="teacher-panel-heading"><div><p class="eyebrow">SAVOLLAR BANKI</p><h3>Test savolini qo‘shish</h3><p>Bu yerdan kiritilgan savol o‘quvchi testida paydo bo‘ladi.</p></div></div>
+          <div class="question-manager-grid">
+            <form id="questionForm" class="question-form">
+              <label>Test turi<select id="questionSection" name="section"><option value="Grammatika">Grammatika</option><option value="Tinglash">Tinglash</option><option value="O‘qish">O‘qish</option><option value="Yozish">Yozish</option><option value="Gapirish">Gapirish</option></select></label>
+              <div id="questionFields"></div>
+              <button class="primary-button dark-button" type="submit">Savolni qo‘shish <span>+</span></button>
+            </form>
+            <div><div class="question-list-title"><h3>Mavjud savollar</h3><span id="questionCount"></span></div><div id="teacherQuestionList" class="teacher-question-list"></div></div>
+          </div>
+        </section>
+        <section id="teacherResultsPanel" class="teacher-panel hidden"><div id="teacherStudentList" class="teacher-student-list"></div></section>
+        <section id="teacherReviewPanel" class="teacher-panel hidden"><div id="teacherReviewList" class="teacher-review-list"></div></section>
+        <section id="teacherSettingsPanel" class="teacher-panel hidden">
+          <div class="teacher-panel-heading"><div><p class="eyebrow">XAVFSIZLIK</p><h3>Admin login va parolni o‘zgartirish</h3><p>O‘zgartirish uchun joriy parolingizni kiriting.</p></div></div>
+          <form id="adminSettingsForm" class="question-form" style="max-width:420px;">
+            <label>Joriy parol<input type="password" name="currentPassword" autocomplete="current-password" required placeholder="Joriy parolingiz" /></label>
+            <label>Yangi login nomi (ixtiyoriy)<input type="text" name="newUsername" autocomplete="username" placeholder="Bo‘sh qoldirsangiz o‘zgarmaydi" /></label>
+            <label>Yangi parol (ixtiyoriy)<input type="password" name="newPassword" autocomplete="new-password" minlength="4" placeholder="Kamida 4 ta belgi, bo‘sh qoldirsangiz o‘zgarmaydi" /></label>
+            <button class="primary-button dark-button" type="submit">Saqlash</button>
+          </form>
+          <p id="adminSettingsMessage" class="form-message" role="status"></p>
+        </section>
+      </section>
+    </main>
+    <footer>© Anor International School · تشخيص اللغة العربية · Created by Mamadaminov</footer>
+    <script src="app.js"></script>
+  </body>
+</html>

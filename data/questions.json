@@ -1,0 +1,131 @@
+{
+  "Grammatika": [
+    {
+      "id": "g1",
+      "prompt": "“Men o‘quvchiman” jumlasining to‘g‘ri tarjimasi qaysi?",
+      "options": [
+        "أنا طالب.",
+        "طالب أنا.",
+        "أنا طالبٌ يكون."
+      ],
+      "answer": "0"
+    },
+    {
+      "id": "g2",
+      "prompt": "Bo‘sh joyni to‘ldiring: هذا ___ جميل. (Bu chiroyli kitob.)",
+      "options": [
+        "كتاب",
+        "سيارة",
+        "مدرسة"
+      ],
+      "answer": "0"
+    },
+    {
+      "id": "g3",
+      "prompt": "“Men maktabga boraman” jumlasini toping.",
+      "options": [
+        "أنا أذهب إلى المدرسة.",
+        "المدرسة أذهب أنا.",
+        "أنا المدرسة أذهب."
+      ],
+      "answer": "0"
+    },
+    {
+      "id": "g4",
+      "prompt": "“هل” so‘roq yuklamasi qaysi gapda to‘g‘ri ishlatilgan?",
+      "options": [
+        "هل أنت طالب؟",
+        "أنت هل طالب؟",
+        "أنت طالب هل؟"
+      ],
+      "answer": "0"
+    }
+  ],
+  "Tinglash": [
+    {
+      "id": "l1",
+      "prompt": "Gapirayotgan bolaning ismi nima?",
+      "audioText": "مرحباً! اسمي محمد.",
+      "options": [
+        "Ali",
+        "Muhammad",
+        "Xolid"
+      ],
+      "answer": "1"
+    },
+    {
+      "id": "l2",
+      "prompt": "Bugun haftaning qaysi kuni?",
+      "audioText": "اليوم يوم الجمعة.",
+      "options": [
+        "Dushanba",
+        "Chorshanba",
+        "Juma"
+      ],
+      "answer": "2"
+    },
+    {
+      "id": "l3",
+      "prompt": "U nimani yoqtiradi?",
+      "audioText": "أنا أحب الشاي ولا أحب القهوة.",
+      "options": [
+        "Choy",
+        "Qahva",
+        "Sut"
+      ],
+      "answer": "0"
+    }
+  ],
+  "O‘qish": [
+    {
+      "id": "r1",
+      "prompt": "“مدرسة” so‘zi nimani anglatadi?",
+      "options": [
+        "Oila",
+        "Do‘st",
+        "Maktab"
+      ],
+      "answer": "2"
+    },
+    {
+      "id": "r2",
+      "prompt": "“أنا أحب اللغة العربية” gapining ma’nosi qaysi?",
+      "options": [
+        "Men arab tilini yaxshi ko‘raman.",
+        "Men arab tilini o‘qimayman.",
+        "Men ingliz tilini yaxshi ko‘raman."
+      ],
+      "answer": "0"
+    },
+    {
+      "id": "r3",
+      "prompt": "“عشر سنوات” nimani anglatadi?",
+      "options": [
+        "O‘n yosh",
+        "Yigirma yosh",
+        "O‘n kun"
+      ],
+      "answer": "0"
+    }
+  ],
+  "Yozish": [
+    {
+      "id": "w1",
+      "prompt": "So‘zlardan to‘g‘ri jumla tuzing: أنا / طالب / مجتهد"
+    },
+    {
+      "id": "w2",
+      "prompt": "Arab tilida ismingiz, sinfingiz va arab tilini yoqtirasizmi yoki yo‘qligi haqida 2–3 ta sodda gap yozing."
+    },
+    {
+      "id": "w3",
+      "prompt": "“Bugun havo yaxshi.” jumlasini arab tiliga tarjima qiling."
+    }
+  ],
+  "Gapirish": [
+    {
+      "id": "s1",
+      "prompt": "O‘zingizni arab tilida tanishtiring: ismingiz, sinfingiz va arab tili haqida 2–3 ta gap ayting."
+    }
+  ]
+}
