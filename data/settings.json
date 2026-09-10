@@ -1,5 +1,9 @@
 {
   "gradingMode": "teacher",
   "adminUsername": "admin",
-  "adminPassword": "admin"
+  "adminPassword": "admin",
+  "readingPassage": {
+    "content": "اسمي علي، عمري عشر سنوات. أدرس في مدرسة أنور. أحب اللغة العربية وأحب الرسم.",
+    "translation": "Men Aliman, 10 yoshdaman. Anor maktabida o‘qiyman. Arab tilini va rasm chizishni yaxshi ko‘raman."
+  }
 }

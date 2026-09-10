@@ -131,6 +131,11 @@ body.lang-ru .test-card.is-complete-locked::after { content: "✓ Нажмите
 .question-manager-grid { display: grid; grid-template-columns: minmax(270px, .8fr) minmax(340px, 1.2fr); gap: 22px; margin-top: 21px; }
 .question-form { padding: 23px; border-radius: 7px; background: #edf3ee; border: 1px solid #d2dfd6; }
 .question-form textarea { resize: vertical; }
+.reading-passage-manager { display: grid; gap: 12px; margin: 16px 0; padding: 14px; border: 1px solid #d7c38c; border-radius: 6px; background: #fffaf0; }
+.reading-passage-manager .manager-note { margin: 0; }
+.reading-passage { margin: 0 0 8px; padding: 23px; border: 1px solid #e5d7ad; border-radius: 7px; background: #fffaf0; }
+.reading-passage-content { margin-top: 10px; color: #20364a; font: 700 24px/1.9 "Amiri", serif; }
+.reading-passage-translation { margin: 12px 0 0; color: #596a75; font-size: 14px; line-height: 1.65; text-align: left; }
 .manager-note { padding: 11px; border-left: 3px solid #c99d42; background: #fffefa; color: #61717c; font-size: 12px; line-height: 1.5; }
 .question-list-title { display: flex; align-items: center; justify-content: space-between; margin: 0 0 11px; }
 #questionCount { padding: 5px 8px; background: #f4e9c8; border-radius: 99px; color: #725a20; font-size: 11px; font-weight: 700; }

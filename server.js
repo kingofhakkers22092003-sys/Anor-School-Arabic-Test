@@ -66,7 +66,7 @@ function loadDb() {
     settings: readJson(SETTINGS_FILE, { gradingMode: 'teacher', adminUsername: 'admin', adminPassword: 'admin' }),
   };
   db.students.forEach(student => { student.results ||= {}; student.attempts ||= []; student.pendingReview ||= {}; student.telegramSent ??= false; student.telegramError ??= null; });
-  db.settings.gradingMode ||= 'teacher'; db.settings.adminUsername ||= 'admin'; db.settings.adminPassword ||= 'admin';
+  db.settings.gradingMode ||= 'teacher'; db.settings.adminUsername ||= 'admin'; db.settings.adminPassword ||= 'admin'; db.settings.readingPassage ||= { content: '', translation: '' };
   return db;
 }
 function saveDb(db) {
@@ -108,6 +108,8 @@ app.post('/api/students/:id/reset', async (req, res) => { const db = loadDb(); c
 app.get('/api/questions', (req, res) => res.json(loadDb().questionBank));
 app.post('/api/questions', (req, res) => { const { section, prompt, audioText, audioUrl, options, answer } = req.body || {}; if (!TEST_KEYS.includes(section) || !prompt) return res.status(400).json({ error: 'invalid' }); const db = loadDb(); const question = { id: crypto.randomUUID(), prompt, ...(options ? { options } : {}), ...(answer !== undefined ? { answer } : {}), ...(audioUrl ? { audioUrl } : audioText ? { audioText } : {}) }; db.questionBank[section].push(question); saveDb(db); res.json(db.questionBank); });
 app.delete('/api/questions/:section/:id', (req, res) => { const db = loadDb(); if (!TEST_KEYS.includes(req.params.section)) return res.status(400).json({ error: 'invalid' }); db.questionBank[req.params.section] = db.questionBank[req.params.section].filter(question => question.id !== req.params.id); saveDb(db); res.json(db.questionBank); });
+app.get('/api/reading-passage', (req, res) => res.json(loadDb().settings.readingPassage || { content: '', translation: '' }));
+app.post('/api/reading-passage', (req, res) => { const { content, translation } = req.body || {}; if (typeof content !== 'string' || typeof translation !== 'string') return res.status(400).json({ error: 'invalid' }); const db = loadDb(); db.settings.readingPassage = { content: content.trim(), translation: translation.trim() }; saveDb(db); res.json(db.settings.readingPassage); });
 app.get('/api/grading-mode', (req, res) => res.json({ mode: loadDb().settings.gradingMode }));
 app.post('/api/grading-mode', (req, res) => { if (!['ai', 'teacher'].includes(req.body?.mode)) return res.status(400).json({ error: 'invalid' }); const db = loadDb(); db.settings.gradingMode = req.body.mode; saveDb(db); res.json({ mode: db.settings.gradingMode }); });
 app.post('/api/admin/login', (req, res) => { const db = loadDb(); const { username, password } = req.body || {}; if (String(username || '').trim().toLowerCase() !== db.settings.adminUsername.toLowerCase()) return res.status(404).json({ error: 'invalid-username' }); if (password !== db.settings.adminPassword) return res.status(401).json({ error: 'invalid-password' }); res.json({ ok: true, username: db.settings.adminUsername }); });
