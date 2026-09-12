@@ -7,6 +7,7 @@ const FormData = require('form-data');
 const fetch = require('node-fetch');
 const OpenAI = require('openai');
 const crypto = require('crypto');
+const database = require('./supabase');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -25,13 +26,8 @@ if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir);
 const upload = multer({ dest: uploadDir, limits: { fileSize: 20 * 1024 * 1024 } });
 
 // ---------- Umumiy ma'lumotlar ombori ----------
-// Natijalar, savollar va sozlamalar brauzer localStorage'ida emas, serverda
-// saqlanadi. Shu sababli barcha qurilmalar bitta dashboardni ko'radi.
-const dataDir = path.join(__dirname, 'data');
-if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir);
-const STUDENTS_FILE = path.join(dataDir, 'students.json');
-const QUESTIONS_FILE = path.join(dataDir, 'questions.json');
-const SETTINGS_FILE = path.join(dataDir, 'settings.json');
+// Natijalar, savollar va sozlamalar Supabase Postgres bazasida saqlanadi.
+// Render qayta ishga tushsa ham bu ma'lumotlar saqlanib qoladi.
 const TEST_KEYS = ['Grammatika', 'Tinglash', 'O‘qish', 'Yozish', 'Gapirish'];
 const DEFAULT_QUESTIONS = {
   Grammatika: [
@@ -58,22 +54,11 @@ const DEFAULT_QUESTIONS = {
   Gapirish: [{ id: 's1', prompt: 'O‘zingizni arab tilida tanishtiring: ismingiz, sinfingiz va arab tili haqida 2–3 ta gap ayting.' }],
 };
 const clone = value => JSON.parse(JSON.stringify(value));
-function readJson(file, fallback) { try { return fs.existsSync(file) ? JSON.parse(fs.readFileSync(file, 'utf8')) : fallback; } catch { return fallback; } }
-function loadDb() {
-  const db = {
-    students: readJson(STUDENTS_FILE, []),
-    questionBank: readJson(QUESTIONS_FILE, clone(DEFAULT_QUESTIONS)),
-    settings: readJson(SETTINGS_FILE, { gradingMode: 'teacher', adminUsername: 'admin', adminPassword: 'admin' }),
-  };
-  db.students.forEach(student => { student.results ||= {}; student.attempts ||= []; student.pendingReview ||= {}; student.telegramSent ??= false; student.telegramError ??= null; });
-  db.settings.gradingMode ||= 'teacher'; db.settings.adminUsername ||= 'admin'; db.settings.adminPassword ||= 'admin'; db.settings.readingPassage ||= { content: '', translation: '' };
-  return db;
-}
-function saveDb(db) {
-  fs.writeFileSync(STUDENTS_FILE, JSON.stringify(db.students, null, 2));
-  fs.writeFileSync(QUESTIONS_FILE, JSON.stringify(db.questionBank, null, 2));
-  fs.writeFileSync(SETTINGS_FILE, JSON.stringify(db.settings, null, 2));
-}
+const DEFAULT_SETTINGS = { gradingMode: 'teacher', adminUsername: 'admin', adminPassword: 'admin', readingPassage: { content: '', translation: '' } };
+async function settings() { return database.getSettings(DEFAULT_SETTINGS); }
+const SUPERADMIN_USERNAME = process.env.SUPERADMIN_USERNAME;
+const SUPERADMIN_PASSWORD = process.env.SUPERADMIN_PASSWORD;
+const isSuperadminConfigured = () => Boolean(SUPERADMIN_USERNAME && SUPERADMIN_PASSWORD);
 function publicStudent(student) { if (!student) return null; const { password, ...safe } = student; return safe; }
 function findStudent(db, id) { return db.students.find(student => student.id === id); }
 function fullyGraded(student) { return TEST_KEYS.every(key => student.results?.[key] && !student.results[key].pending); }
@@ -97,24 +82,26 @@ async function sendResultToTelegram(student) {
 }
 async function finalize(student) { if (!fullyGraded(student) || student.telegramSent) return; try { await sendResultToTelegram(student); student.telegramSent = true; student.telegramError = null; } catch (error) { student.telegramSent = false; student.telegramError = error.message || 'Telegramga yuborishda xatolik.'; } }
 
-app.get('/api/students', (req, res) => { const db = loadDb(); res.json(db.students.map(publicStudent)); });
-app.get('/api/students/:id', async (req, res) => { const db = loadDb(); const student = findStudent(db, req.params.id); if (!student) return res.status(404).json({ error: 'not-found' }); archiveAttempt(student); await finalize(student); saveDb(db); res.json(publicStudent(student)); });
-app.post('/api/register', (req, res) => { const { fullName, schoolClass, password } = req.body || {}; if (!fullName || !schoolClass || !password) return res.status(400).json({ error: 'invalid' }); const db = loadDb(); if (fullName.trim().toLowerCase() === db.settings.adminUsername.toLowerCase()) return res.status(400).json({ error: 'admin-reserved' }); if (db.students.some(item => item.fullName.toLowerCase() === fullName.trim().toLowerCase() && item.schoolClass === schoolClass)) return res.status(409).json({ error: 'duplicate' }); const student = { id: crypto.randomUUID(), fullName: fullName.trim(), schoolClass, password, results: {}, attempts: [], pendingReview: {}, telegramSent: false, telegramError: null }; db.students.push(student); saveDb(db); res.json(publicStudent(student)); });
-app.post('/api/login', (req, res) => { const { fullName, password } = req.body || {}; const db = loadDb(); const student = db.students.find(item => item.fullName.toLowerCase() === String(fullName || '').trim().toLowerCase() && item.password === password); if (!student) return res.status(401).json({ error: 'invalid-credentials' }); res.json(publicStudent(student)); });
-app.post('/api/students/:id/result', async (req, res) => { const { section, score, total, note } = req.body || {}; const db = loadDb(); const student = findStudent(db, req.params.id); if (!student || !TEST_KEYS.includes(section)) return res.status(404).json({ error: 'not-found' }); student.results[section] = { score, total, note: note || '', pending: false, completedAt: new Date().toISOString() }; delete student.pendingReview[section]; archiveAttempt(student); await finalize(student); saveDb(db); res.json(publicStudent(student)); });
-app.post('/api/students/:id/pending', (req, res) => { const { section, total, content } = req.body || {}; const db = loadDb(); const student = findStudent(db, req.params.id); if (!student || !TEST_KEYS.includes(section)) return res.status(404).json({ error: 'not-found' }); student.results[section] = { score: null, total, note: '', pending: true, completedAt: new Date().toISOString() }; student.pendingReview[section] = content; saveDb(db); res.json(publicStudent(student)); });
-app.post('/api/students/:id/grade', async (req, res) => { const { section, score, total, comment } = req.body || {}; const db = loadDb(); const student = findStudent(db, req.params.id); if (!student || !TEST_KEYS.includes(section)) return res.status(404).json({ error: 'not-found' }); student.results[section] = { score, total, note: comment || '', pending: false, completedAt: student.results[section]?.completedAt || new Date().toISOString() }; delete student.pendingReview[section]; archiveAttempt(student); await finalize(student); saveDb(db); res.json(publicStudent(student)); });
-app.post('/api/students/:id/reset', async (req, res) => { const db = loadDb(); const student = findStudent(db, req.params.id); if (!student) return res.status(404).json({ error: 'not-found' }); await finalize(student); if (!fullyGraded(student) || !student.telegramSent) { saveDb(db); return res.status(400).json({ error: 'not-ready' }); } student.results = {}; student.pendingReview = {}; student.telegramSent = false; student.telegramError = null; saveDb(db); res.json(publicStudent(student)); });
-app.get('/api/questions', (req, res) => res.json(loadDb().questionBank));
-app.post('/api/questions', (req, res) => { const { section, grade, prompt, audioText, audioUrl, options, answer } = req.body || {}; const normalizedGrade = Number(grade); if (!TEST_KEYS.includes(section) || !prompt || !Number.isInteger(normalizedGrade) || normalizedGrade < 1 || normalizedGrade > 11) return res.status(400).json({ error: 'invalid' }); const db = loadDb(); const question = { id: crypto.randomUUID(), grade: normalizedGrade, prompt, ...(options ? { options } : {}), ...(answer !== undefined ? { answer } : {}), ...(audioUrl ? { audioUrl } : audioText ? { audioText } : {}) }; db.questionBank[section].push(question); saveDb(db); res.json(db.questionBank); });
-app.patch('/api/questions/:section/:id', (req, res) => { const normalizedGrade = Number(req.body?.grade); if (!TEST_KEYS.includes(req.params.section) || !Number.isInteger(normalizedGrade) || normalizedGrade < 1 || normalizedGrade > 11) return res.status(400).json({ error: 'invalid' }); const db = loadDb(); const question = db.questionBank[req.params.section].find(item => item.id === req.params.id); if (!question) return res.status(404).json({ error: 'not-found' }); question.grade = normalizedGrade; saveDb(db); res.json(db.questionBank); });
-app.delete('/api/questions/:section/:id', (req, res) => { const db = loadDb(); if (!TEST_KEYS.includes(req.params.section)) return res.status(400).json({ error: 'invalid' }); db.questionBank[req.params.section] = db.questionBank[req.params.section].filter(question => question.id !== req.params.id); saveDb(db); res.json(db.questionBank); });
-app.get('/api/reading-passage', (req, res) => res.json(loadDb().settings.readingPassage || { content: '', translation: '' }));
-app.post('/api/reading-passage', (req, res) => { const { content, translation } = req.body || {}; if (typeof content !== 'string' || typeof translation !== 'string') return res.status(400).json({ error: 'invalid' }); const db = loadDb(); db.settings.readingPassage = { content: content.trim(), translation: translation.trim() }; saveDb(db); res.json(db.settings.readingPassage); });
-app.get('/api/grading-mode', (req, res) => res.json({ mode: loadDb().settings.gradingMode }));
-app.post('/api/grading-mode', (req, res) => { if (!['ai', 'teacher'].includes(req.body?.mode)) return res.status(400).json({ error: 'invalid' }); const db = loadDb(); db.settings.gradingMode = req.body.mode; saveDb(db); res.json({ mode: db.settings.gradingMode }); });
-app.post('/api/admin/login', (req, res) => { const db = loadDb(); const { username, password } = req.body || {}; if (String(username || '').trim().toLowerCase() !== db.settings.adminUsername.toLowerCase()) return res.status(404).json({ error: 'invalid-username' }); if (password !== db.settings.adminPassword) return res.status(401).json({ error: 'invalid-password' }); res.json({ ok: true, username: db.settings.adminUsername }); });
-app.post('/api/admin/credentials', (req, res) => { const db = loadDb(); const { currentPassword, newUsername, newPassword } = req.body || {}; if (currentPassword !== db.settings.adminPassword) return res.status(401).json({ error: 'invalid-password' }); const username = String(newUsername || '').trim(); const password = String(newPassword || '').trim(); if (!username && !password) return res.status(400).json({ error: 'nothing-to-change' }); if (username && db.students.some(student => student.fullName.toLowerCase() === username.toLowerCase())) return res.status(409).json({ error: 'duplicate-username' }); if (password && password.length < 4) return res.status(400).json({ error: 'password-too-short' }); if (username) db.settings.adminUsername = username; if (password) db.settings.adminPassword = password; saveDb(db); res.json({ ok: true, username: db.settings.adminUsername }); });
+const asyncRoute = handler => (req, res, next) => Promise.resolve(handler(req, res, next)).catch(next);
+
+app.get('/api/students', asyncRoute(async (req, res) => res.json((await database.getStudents()).map(publicStudent))));
+app.get('/api/students/:id', asyncRoute(async (req, res) => { const student = await database.getStudent(req.params.id); if (!student) return res.status(404).json({ error: 'not-found' }); archiveAttempt(student); await finalize(student); await database.saveStudent(student); res.json(publicStudent(student)); }));
+app.post('/api/register', asyncRoute(async (req, res) => { const { fullName, schoolClass, password } = req.body || {}; if (!fullName || !schoolClass || !password) return res.status(400).json({ error: 'invalid' }); const appSettings = await settings(); const username = fullName.trim().toLowerCase(); if (username === appSettings.adminUsername.toLowerCase() || (isSuperadminConfigured() && username === SUPERADMIN_USERNAME.trim().toLowerCase())) return res.status(400).json({ error: 'admin-reserved' }); const students = await database.getStudents(); if (students.some(item => item.fullName.toLowerCase() === username && item.schoolClass === schoolClass)) return res.status(409).json({ error: 'duplicate' }); const student = { id: crypto.randomUUID(), fullName: fullName.trim(), schoolClass, password, results: {}, attempts: [], pendingReview: {}, telegramSent: false, telegramError: null }; await database.saveStudent(student); res.json(publicStudent(student)); }));
+app.post('/api/login', asyncRoute(async (req, res) => { const { fullName, password } = req.body || {}; const student = (await database.getStudents()).find(item => item.fullName.toLowerCase() === String(fullName || '').trim().toLowerCase() && item.password === password); if (!student) return res.status(401).json({ error: 'invalid-credentials' }); res.json(publicStudent(student)); }));
+app.post('/api/students/:id/result', asyncRoute(async (req, res) => { const { section, score, total, note } = req.body || {}; const student = await database.getStudent(req.params.id); if (!student || !TEST_KEYS.includes(section)) return res.status(404).json({ error: 'not-found' }); student.results[section] = { score, total, note: note || '', pending: false, completedAt: new Date().toISOString() }; delete student.pendingReview[section]; archiveAttempt(student); await finalize(student); await database.saveStudent(student); res.json(publicStudent(student)); }));
+app.post('/api/students/:id/pending', asyncRoute(async (req, res) => { const { section, total, content } = req.body || {}; const student = await database.getStudent(req.params.id); if (!student || !TEST_KEYS.includes(section)) return res.status(404).json({ error: 'not-found' }); student.results[section] = { score: null, total, note: '', pending: true, completedAt: new Date().toISOString() }; student.pendingReview[section] = content; await database.saveStudent(student); res.json(publicStudent(student)); }));
+app.post('/api/students/:id/grade', asyncRoute(async (req, res) => { const { section, score, total, comment } = req.body || {}; const student = await database.getStudent(req.params.id); if (!student || !TEST_KEYS.includes(section)) return res.status(404).json({ error: 'not-found' }); student.results[section] = { score, total, note: comment || '', pending: false, completedAt: student.results[section]?.completedAt || new Date().toISOString() }; delete student.pendingReview[section]; archiveAttempt(student); await finalize(student); await database.saveStudent(student); res.json(publicStudent(student)); }));
+app.post('/api/students/:id/reset', asyncRoute(async (req, res) => { const student = await database.getStudent(req.params.id); if (!student) return res.status(404).json({ error: 'not-found' }); await finalize(student); if (!fullyGraded(student) || !student.telegramSent) { await database.saveStudent(student); return res.status(400).json({ error: 'not-ready' }); } student.results = {}; student.pendingReview = {}; student.telegramSent = false; student.telegramError = null; await database.saveStudent(student); res.json(publicStudent(student)); }));
+app.get('/api/questions', asyncRoute(async (req, res) => res.json(await database.getQuestionBank(TEST_KEYS))));
+app.post('/api/questions', asyncRoute(async (req, res) => { const { section, grade, prompt, audioText, audioUrl, options, answer } = req.body || {}; const normalizedGrade = Number(grade); if (!TEST_KEYS.includes(section) || !prompt || !Number.isInteger(normalizedGrade) || normalizedGrade < 1 || normalizedGrade > 11) return res.status(400).json({ error: 'invalid' }); const question = { id: crypto.randomUUID(), grade: normalizedGrade, prompt, ...(options ? { options } : {}), ...(answer !== undefined ? { answer } : {}), ...(audioUrl ? { audioUrl } : audioText ? { audioText } : {}) }; await database.addQuestion(question, section); res.json(await database.getQuestionBank(TEST_KEYS)); }));
+app.patch('/api/questions/:section/:id', asyncRoute(async (req, res) => { const normalizedGrade = Number(req.body?.grade); if (!TEST_KEYS.includes(req.params.section) || !Number.isInteger(normalizedGrade) || normalizedGrade < 1 || normalizedGrade > 11) return res.status(400).json({ error: 'invalid' }); const bank = await database.getQuestionBank(TEST_KEYS); if (!bank[req.params.section].some(question => question.id === req.params.id)) return res.status(404).json({ error: 'not-found' }); await database.updateQuestionGrade(req.params.id, normalizedGrade); res.json(await database.getQuestionBank(TEST_KEYS)); }));
+app.delete('/api/questions/:section/:id', asyncRoute(async (req, res) => { if (!TEST_KEYS.includes(req.params.section)) return res.status(400).json({ error: 'invalid' }); const bank = await database.getQuestionBank(TEST_KEYS); if (!bank[req.params.section].some(question => question.id === req.params.id)) return res.status(404).json({ error: 'not-found' }); await database.removeQuestion(req.params.id); res.json(await database.getQuestionBank(TEST_KEYS)); }));
+app.get('/api/reading-passage', asyncRoute(async (req, res) => res.json((await settings()).readingPassage || { content: '', translation: '' })));
+app.post('/api/reading-passage', asyncRoute(async (req, res) => { const { content, translation } = req.body || {}; if (typeof content !== 'string' || typeof translation !== 'string') return res.status(400).json({ error: 'invalid' }); const appSettings = await settings(); appSettings.readingPassage = { content: content.trim(), translation: translation.trim() }; await database.saveSettings(appSettings); res.json(appSettings.readingPassage); }));
+app.get('/api/grading-mode', asyncRoute(async (req, res) => res.json({ mode: (await settings()).gradingMode })));
+app.post('/api/grading-mode', asyncRoute(async (req, res) => { if (!['ai', 'teacher'].includes(req.body?.mode)) return res.status(400).json({ error: 'invalid' }); const appSettings = await settings(); appSettings.gradingMode = req.body.mode; await database.saveSettings(appSettings); res.json({ mode: appSettings.gradingMode }); }));
+app.post('/api/admin/login', asyncRoute(async (req, res) => { const appSettings = await settings(); const { username, password } = req.body || {}; const normalizedUsername = String(username || '').trim().toLowerCase(); if (isSuperadminConfigured() && normalizedUsername === SUPERADMIN_USERNAME.trim().toLowerCase()) { if (password !== SUPERADMIN_PASSWORD) return res.status(401).json({ error: 'invalid-password' }); return res.json({ ok: true, username: SUPERADMIN_USERNAME, role: 'superadmin' }); } if (normalizedUsername !== appSettings.adminUsername.toLowerCase()) return res.status(404).json({ error: 'invalid-username' }); if (password !== appSettings.adminPassword) return res.status(401).json({ error: 'invalid-password' }); res.json({ ok: true, username: appSettings.adminUsername, role: 'admin' }); }));
+app.post('/api/admin/credentials', asyncRoute(async (req, res) => { const appSettings = await settings(); const { currentPassword, newUsername, newPassword } = req.body || {}; if (currentPassword !== appSettings.adminPassword) return res.status(401).json({ error: 'invalid-password' }); const username = String(newUsername || '').trim(); const password = String(newPassword || '').trim(); if (!username && !password) return res.status(400).json({ error: 'nothing-to-change' }); if (username && (await database.getStudents()).some(student => student.fullName.toLowerCase() === username.toLowerCase())) return res.status(409).json({ error: 'duplicate-username' }); if (password && password.length < 4) return res.status(400).json({ error: 'password-too-short' }); if (username) appSettings.adminUsername = username; if (password) appSettings.adminPassword = password; await database.saveSettings(appSettings); res.json({ ok: true, username: appSettings.adminUsername }); }));
 
 // ---------- Yozish (Writing) baholash ----------
 app.post('/api/grade-writing', async (req, res) => {
@@ -225,6 +212,11 @@ app.post('/api/send-telegram', upload.single('pdf'), async (req, res) => {
     if (req.file) fs.unlink(req.file.path, () => {});
     res.status(500).json({ error: 'Telegramga yuborishda xatolik yuz berdi.' });
   }
+});
+
+app.use((error, req, res, next) => {
+  console.error('Server xatosi:', error.message);
+  res.status(500).json({ error: 'Ma’lumotlar bazasi bilan bog‘lanishda xatolik yuz berdi.' });
 });
 
 app.listen(PORT, '0.0.0.0', () => {

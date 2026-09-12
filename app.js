@@ -181,12 +181,13 @@ function firstAvailableIndex(student) {
   return incomplete === -1 ? TEST_ORDER.length : incomplete;
 }
 
+function isStaff(user) { return user?.role === 'admin' || user?.role === 'superadmin'; }
 async function showDashboard() {
   const student = currentStudent();
   const auth = document.querySelector('#authSection'); const dashboard = document.querySelector('#dashboard'); const teacherDashboard = document.querySelector('#teacherDashboard');
   if (!student || !auth || !dashboard || !teacherDashboard) return;
   auth.classList.add('hidden'); document.querySelector('#logoutButton')?.classList.remove('hidden');
-  if (student.role === 'admin') { dashboard.classList.add('hidden'); teacherDashboard.classList.remove('hidden'); await renderTeacherDashboard(); return; }
+  if (isStaff(student)) { dashboard.classList.add('hidden'); teacherDashboard.classList.remove('hidden'); await renderTeacherDashboard(); return; }
   let activeStudent = student;
   try { activeStudent = await apiGet(`/api/students/${student.id}`); cacheStudent(activeStudent); localStorage.setItem(SESSION, JSON.stringify(activeStudent)); } catch { /* oxirgi keshlangan ma'lumot bilan davom etamiz */ }
   teacherDashboard.classList.add('hidden'); dashboard.classList.remove('hidden');
@@ -252,7 +253,7 @@ function renderFinalResults(student) {
 function protectTestPage() {
   if (!document.body.classList.contains('test-page')) return;
   const student = currentStudent();
-  if (!student || student.role === 'admin') { window.location.replace('index.html'); return; }
+  if (!student || isStaff(student)) { window.location.replace('index.html'); return; }
   const testIndex = TEST_ORDER.findIndex(test => test.key === document.body.dataset.section);
   const permitted = firstAvailableIndex(student);
   if (testIndex < 0 || testIndex > permitted || permitted === TEST_ORDER.length) window.location.replace('index.html');
@@ -583,7 +584,7 @@ async function resetDiagnostic() {
 let dashboardPollTimer = null;
 function startDashboardPolling() {
   if (dashboardPollTimer) return;
-  dashboardPollTimer = window.setInterval(() => { if (currentStudent()?.role !== 'admin') showDashboard(); else renderTeacherDashboard(); }, 8000);
+  dashboardPollTimer = window.setInterval(() => { if (!isStaff(currentStudent())) showDashboard(); else renderTeacherDashboard(); }, 8000);
 }
 
 function setupAdminSettings() {
@@ -595,7 +596,7 @@ function setupAdminSettings() {
     const { currentPassword, newUsername, newPassword } = Object.fromEntries(new FormData(form));
     try {
       const data = await apiPost('/api/admin/credentials', { currentPassword, newUsername, newPassword });
-      const current = currentStudent(); if (current?.role === 'admin') localStorage.setItem(SESSION, JSON.stringify({ ...current, fullName: data.username }));
+      const current = currentStudent(); if (isStaff(current)) localStorage.setItem(SESSION, JSON.stringify({ ...current, fullName: data.username }));
       form.reset(); if (message) { message.textContent = t('Ma’lumotlar yangilandi.'); message.classList.add('success'); }
     } catch (error) {
       const key = error.code === 'invalid-password' ? 'Joriy parol noto‘g‘ri.' : error.code === 'duplicate-username' ? 'Bu login nomi band, boshqasini tanlang.' : error.code === 'password-too-short' ? 'Parol kamida 4 ta belgidan iborat bo‘lishi kerak.' : 'Xatolik yuz berdi, qayta urinib ko‘ring.';
@@ -610,7 +611,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   protectTestPage(); setupLanguageSwitch(); renderDynamicTest(); addClassOptions(); await showDashboard(); setupQuestionManager(); setupAdminSettings(); translatePage(); startDashboardPolling();
   document.querySelectorAll('.test-card').forEach(card => card.addEventListener('click', event => { if (card.classList.contains('is-locked')) { event.preventDefault(); alert(card.classList.contains('is-complete-locked') ? t('Yangi testni boshlash uchun avval natijalar oynasidagi × belgisini bosing.') : t('Avval ochiq turgan testni yakunlang.')); } }));
   document.querySelector('#registerForm')?.addEventListener('submit', async event => { event.preventDefault(); const data = Object.fromEntries(new FormData(event.currentTarget)); try { const student = await apiPost('/api/register', data); cacheStudent(student); localStorage.setItem(SESSION, JSON.stringify(student)); setMessage(t('Profil yaratildi. Xush kelibsiz!'), true); await showDashboard(); } catch (error) { setMessage(t(error.code === 'admin-reserved' ? '“admin” nomi faqat o‘qituvchi paneli uchun ajratilgan.' : error.code === 'duplicate' ? 'Bu ism va sinf bilan profil allaqachon mavjud. Kirish bo‘limidan foydalaning.' : 'Xatolik yuz berdi, qayta urinib ko‘ring.')); } });
-  document.querySelector('#loginForm')?.addEventListener('submit', async event => { event.preventDefault(); const data = Object.fromEntries(new FormData(event.currentTarget)); try { const admin = await apiPost('/api/admin/login', { username: data.fullName.trim(), password: data.password }); localStorage.setItem(SESSION, JSON.stringify({ id: 'teacher-admin', fullName: admin.username, role: 'admin' })); await showDashboard(); } catch (adminError) { try { const student = await apiPost('/api/login', data); cacheStudent(student); localStorage.setItem(SESSION, JSON.stringify(student)); setMessage(t('Kirish muvaffaqiyatli.'), true); await showDashboard(); } catch { setMessage(t('Ism familiya yoki parol noto‘g‘ri.')); } } });
+  document.querySelector('#loginForm')?.addEventListener('submit', async event => { event.preventDefault(); const data = Object.fromEntries(new FormData(event.currentTarget)); try { const admin = await apiPost('/api/admin/login', { username: data.fullName.trim(), password: data.password }); localStorage.setItem(SESSION, JSON.stringify({ id: `teacher-${admin.role}`, fullName: admin.username, role: admin.role })); await showDashboard(); } catch (adminError) { try { const student = await apiPost('/api/login', data); cacheStudent(student); localStorage.setItem(SESSION, JSON.stringify(student)); setMessage(t('Kirish muvaffaqiyatli.'), true); await showDashboard(); } catch { setMessage(t('Ism familiya yoki parol noto‘g‘ri.')); } } });
   document.querySelector('#logoutButton')?.addEventListener('click', () => { localStorage.removeItem(SESSION); window.location.reload(); });
   document.querySelector('#downloadPdf')?.addEventListener('click', downloadResultPdf);
   document.querySelector('#resetResults')?.addEventListener('click', resetDiagnostic);
